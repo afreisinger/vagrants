@@ -10,13 +10,9 @@ sudo apt-get install \
     curl \
     gnupg \
     lsb-release
-    #gnupg-agent software-properties-common
 
 # Add Docker’s official GPG key:
-#curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-
-#sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 
 # Set up the stable repository.
 echo \
@@ -36,18 +32,11 @@ echo "**** End installing Docker CE"
 
 
 # Install kubectl
-#sudo apt-get update && sudo apt-get install -y apt-transport-https
-#curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-#echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
-#sudo apt-get update
-#sudo apt-get install -y kubectl 
-
 sudo apt-get update && sudo apt-get install -y apt-transport-https gnupg2 curl
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
 echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
 sudo apt-get update
 sudo apt-get install -y kubectl
-#kubectl cluster-info
 echo "**** End installing kubectl"
 
 #Install kind
