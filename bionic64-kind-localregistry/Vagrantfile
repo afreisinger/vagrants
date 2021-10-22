@@ -27,7 +27,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision :shell, path: "update.sh"
   config.vm.provision :shell, path: "bootstrap.sh"
   #config.vm.provision :shell, path: "cleanup.sh"
-  #config.vm.provision :shell, path: "kind_cluster_with_localregistry.sh"
+  config.vm.provision :shell, path: "kind_cluster_with_localregistry.sh"
 
   config.vm.provider "virtualbox" do |v|
     v.memory = 4096
