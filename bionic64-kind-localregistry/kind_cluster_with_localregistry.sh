@@ -50,5 +50,5 @@ kind get clusters
 mkdir .kube
 kind get kubeconfig > .kube/config
 # Create nginx-ingress controller 
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/kind/deploy.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
 echo "**** Cluster started :) Ready to shine!"
