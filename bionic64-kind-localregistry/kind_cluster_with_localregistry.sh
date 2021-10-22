@@ -34,6 +34,10 @@ nodes:
   - containerPort: 443
     hostPort: 443
     protocol: TCP
+- role: worker
+- role: worker
+- role: worker
+
 EOF
 
 # connect the registry to the cluster network
@@ -47,6 +51,7 @@ done
 
 # Initialize kind
 kind get clusters
+kubectl cluster-info
 mkdir .kube
 kind get kubeconfig > .kube/config
 # Create nginx-ingress controller 

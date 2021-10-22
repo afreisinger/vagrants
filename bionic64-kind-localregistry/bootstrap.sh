@@ -36,11 +36,23 @@ sudo apt-get update && sudo apt-get install -y apt-transport-https gnupg2 curl
 curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
 echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
 sudo apt-get update
-sudo apt-get install -y kubectl
+sudo apt-get install -y kubectl bash-completion
 echo "**** End installing kubectl"
+kubectl cluster-info
+echo 'source /usr/share/bash-completion/bash_completion' >>/home/vagrant/.bashrc
+echo 'source <(kubectl completion bash)' >>/home/vagrant/.bashrc
+echo 'alias k=kubectl' >>/home/vagrant/.bashrc
+echo 'complete -F __start_kubectl k' >>/home/vagrant/.bashrc
 
 #Install kind
 curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.11.1/kind-linux-amd64
 chmod +x ./kind
 mv ./kind /usr/local/bin/kind
 echo "**** End installing kind"
+
+# Install Helm
+curl https://baltocdn.com/helm/signing.asc | sudo apt-key add -
+sudo apt-get install apt-transport-https --yes
+echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+sudo apt-get update
+sudo apt-get install helm -y
