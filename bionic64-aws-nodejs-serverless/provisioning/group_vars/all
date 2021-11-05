@@ -1,0 +1,4 @@
+---
+
+node_version: v16.13.0
+nodebrew_install_user: vagrant

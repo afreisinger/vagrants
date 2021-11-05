@@ -20,8 +20,18 @@ echo \
   $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
 # Latest version of Docker Engine and containerd
-sudo apt-get update
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io 
+
+
+if [[ $(which docker) && $(docker --version) ]]; then
+    echo "Update docker"
+    sudo apt-get update
+  else
+    echo "Install docker"
+    sudo apt-get update
+    sudo apt-get install -y docker-ce docker-ce-cli containerd.io 
+fi
+
+
 
 # Add an existing user vagrant to a docker  group
 usermod -aG docker vagrant
@@ -56,3 +66,4 @@ sudo apt-get install apt-transport-https --yes
 echo "deb https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
 sudo apt-get update
 sudo apt-get install helm -y
+echo "**** End installing Helm"
