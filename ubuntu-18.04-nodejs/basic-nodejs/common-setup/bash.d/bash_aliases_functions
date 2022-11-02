@@ -1,0 +1,191 @@
+# vim: syntax=sh
+
+#if ! declare -p t_debug > /dev/null 2> /dev/null; then
+#    source ~/.bash.d/core_utils
+#fi
+
+#t_debug "Reading aliases and functions"
+
+#if ! declare -p X_PLATFORM_UTILS > /dev/null 2>&1; then
+#    source ~/bin/cross-platform-utils.bashlib 
+#fi
+
+# Strip junk left from converting utf8<->cp1252
+alias strip-non-ascii='python -c "import sys,re;[sys.stdout.write(re.sub('\''[^\x09\x0A\x0D\x20-\x7F]'\'', '\'''\'', line)) for line in sys.stdin]"'
+alias strip-empty="egrep -v '^\s*$'"
+
+t#_debug Setting up aliases for conversions
+alias urldecode='python -c "import sys, urllib as ul; print ul.unquote_plus(sys.argv[1])"'
+alias urlencode='python -c "import sys, urllib as ul; print ul.quote_plus(sys.argv[1])"'
+alias htmldecode='python -c "import sys, HTMLParser;h = HTMLParser.HTMLParser();print h.unescape(sys.argv[1])"'
+alias htmlencode='python3 -c "import sys, html; print(html.escape(sys.argv[1]))"'
+alias html2text='python -c "import sys,html2text;sys.stdout.write(html2text.html2text(sys.stdin.read().decode(\"utf-8\")))"'
+
+#t_debug Use htop if available
+if which htop > /dev/null; then
+    alias top='htop'
+fi
+
+IGNORE=""
+if ! is_mac; then
+  t_debug Add custom ignore pattern for GNU ls
+  #ignore patterns
+  for i in '*~' '*.pyc'; do 
+      IGNORE="$IGNORE --ignore=$i"
+  done
+fi
+
+#t_debug small utils and aliases
+# Color output - when CLICOLOR is defined, --color/-G is unneeded
+alias v='ls -l'
+alias clean-temp='find -E ~ -type f -and -regex ".*~$|.*-ck.js|.*.tmp" -exec rm {} \;'
+alias find-ln='find . -maxdepth 1 -type l -ls'
+# Pretty print json
+alias prettify_json='python -mjson.tool'
+
+# Indent text before sending it to Stack Overflow
+alias indent4="sed -E 's/(^.*)/    \1/'"
+alias remove-indent4="sed -E 's/^    //'"
+alias de-indent4=remove-indent4
+alias unindent4=remove-indent4
+
+#t_debug "aliases: setting up node aliases"
+# node commands - important that these are enclosed in single quotes to avoid expansion!
+alias npm-exec='PATH=$(npm bin):$PATH'
+alias coffee='$(npm bin)/coffee'
+alias grunt='$(npm bin)/grunt'
+alias gulp='$(npm bin)/gulp'
+alias mocha='$(npm bin)/mocha'
+alias mochify='$(npm bin)/mochify'
+alias karma='$(npm bin)/karma'
+alias eslint='$(npm bin)/eslint'
+alias prettier='$(npm bin)/prettier'
+alias faucet='$(npm bin)/faucet'
+
+#t_debug "aliases: finished setting up node aliases"
+
+#t_debug webserver aliases
+# webdev
+# it's so long because I enabled UTF8 support: https://stackoverflow.com/a/24517632/200987
+alias webserver='python -c "import SimpleHTTPServer; m = SimpleHTTPServer.SimpleHTTPRequestHandler.extensions_map; m['\'\''] = '\''text/plain'\''; m.update(dict([(k, v + '\'';charset=UTF-8'\'') for k, v in m.items()])); SimpleHTTPServer.test();"'
+alias servers='sudo lsof -iTCP -sTCP:LISTEN -P -n'
+
+# time
+#alias epoch=millis #  tool that we compile ourselves
+
+# find external ip
+alias my-ip='curl -s http://ipinfo.io/ip'
+#alias my-ip-json='curl -s http://ifconfig.co/json'
+
+# SOCKS proxy
+#alias socks_proxy='ssh -v -D 22222 carl-erik@timbuktu.kopseng.no -N'
+#alias socks_proxy_all='ssh -v -D :22222 carl-erik@timbuktu.kopseng.no -N'
+
+# Used with the git alias functions; gd, gds, gdw, gdws
+alias strip-diff-prefix='sed "s/^\([^-+ ]*\)[-+ ]/\\1/"' 
+
+# Used a lot in utility setup scripts
+function strip-comments(){
+    #grep -v '^#' $@
+    sed -e 's/#.*//' $@
+}
+
+# For stack overflow pasting
+alias websafe='sed -e "s/diffia/ACME/gi" -e "s/$USER/my-user/gi" -e "s/nimble/my-project/gi" -e "s/clinic/my-app/gi"'
+alias stack-overflow-no-copy='websafe | indent4 '
+alias stack-overflow='stack-overflow-no-copy | pbcopy; pbpaste; echo -e "\n\nCopied to pastebuffer (use stack-overflow-no-copy to avoid this)!"'
+
+
+# "reminder aliases" for how to suspend and continue a process
+alias processes-suspend='killall -sSTOP '
+alias processes-start='killall -sSTART '
+
+function psgrep() { ps -ef | grep -i "$@"; };
+
+# System shortcuts
+alias apt='sudo apt'
+
+# Restore the original system path if for some reason some 
+# command in your ~/bin directory does not work
+function restore_path() {
+        PATH="${ORIGINAL_PATH}"
+        export PATH
+}
+
+# Zach Holman's git aliases converted to functions for more flexibility
+#   @see https://github.com/holman/dotfiles/commit/2c077a95a610c8fd57da2bd04aa2c85e6fd37b7c#diff-4335824c6d289f1b8b41f7f10bf3a2e7
+#   Being functions allow them to take arguments, such as additional options or filenames
+#
+#   The -r flag to `less` is uses to make it work with the color escape codes
+#   @depends on strip-diff-prefix alias
+function gd() {   git diff          --color $@ | strip-diff-prefix | less -r; }
+function gds() {  git diff --staged --color $@ | strip-diff-prefix | less -r; }
+function gdw() {  git diff          --color --word-diff $@         | less -r; }
+function gdws() { git diff --staged --color --word-diff $@         | less -r; }
+alias gs='git status -sb' # upgrade your git if -sb breaks for you. it's fun.
+alias glg='git lg' 
+
+# utility function that returns myname/repo
+function local-repo(){
+    local url=$(git config remote.origin.url) # --> git@github.com:team/proj
+    echo $url |  util.esed -n -e 's/.*github.com[:/]([/a-zA-Z0-9-]+)(\.git)?/\1/p'
+}
+
+# View commits in GitHub 
+function gh-commit(){ 
+    local repo=$(local-repo)
+    [[ -n $1 ]] && open "https://github.com/$repo/commit/$1" && return
+    echo "Usage: gh-commit 779490"
+}
+function gh-compare(){ 
+    local repo=$(local-repo)
+    [[ -n $2 ]] &&  open "https://github.com/$repo/compare/$1...$2" \
+    || echo "Usage: gh-compare 779490 master"; 
+}
+
+# Maven - fail as soon as a test fails
+function mvn() { $(which mvn) -Dsurefire.skipAfterFailureCount=1 $EXTRA_MAVEN_OPTS $@; }
+
+#
+# Open JIRA issues: `nim 434` opens NIM-434 in the browser
+function nim() { xdg-open http://diffia.atlassian.net/browse/NIM-$1;  }
+
+# Nice util for listing all declared functions. You use `type` to print them
+alias list-functions='declare | egrep '\''^[[:alpha:]][[:alnum:]_]* ()'\''; echo -e "\nTo print a function definition, issue \`type function-name\` "'
+
+tmux-restore () {
+    if [[ -n $1 ]]; then
+        local setup_file="$HOME/.tmux/$1.proj" 
+        local dir_file="$HOME/.tmux/$1.dir" 
+        if [[ -e $setup_file ]]; then
+            [[ -e $dir_file ]] && cd $(bash -c "echo $(cat $dir_file)") # set CWD
+            command tmux new-session -s "$1" "tmux source-file $setup_file"
+        else
+            printf "\nNo such file \"$setup_file\".\nListing existing files:\n\n"
+            ls -1 ~/.tmux/*.proj
+            return 1
+        fi
+    else
+        echo "Usage: tmux-restore my-js-setup"
+        return 1
+    fi
+}
+
+# allow to use alternative npm clients like PNPM with the same name. Lazy :p
+# just use direnv's .envrc to define a path to a different npm, like pnpm
+function npm(){ if [[ -z "$NPMBIN" ]]; then command npm $@; else $NPMBIN $@; fi; }
+
+# SSH recipes for myself
+
+# Auto-open Bittorrent Sync
+alias timbuktu_btsync="(sleep 2 && open http://localhost:8888)& ssh -L8888:127.0.0.1:8888 carl-erik@timbuktu.kopseng.no -N"
+
+# Reverse SSH
+# Connect to timbuktu.kopseng.no to allow timbuktu.kopseng.no:10001 to go directly against my own machine
+# client 1: timbuktu_reverse_tunnel
+# client 2: ssh -l my-client1-user -p 10001 timbuktu.kopseng.no
+# Effect: client2 => timbuktu => client1
+alias timbuktu_reverse_tunnel='ssh -v -R 10001:localhost:22 timbuktu.kopseng.no -N -l carl-erik'
+
+
+#t_debug "global aliases and functions finished"

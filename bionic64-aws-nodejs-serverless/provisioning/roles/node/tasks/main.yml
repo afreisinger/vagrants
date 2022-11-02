@@ -1,0 +1,35 @@
+---
+
+# https://github.com/suzuki-shunsuke/ansible-nodebrew/blob/master/tasks/main.yml
+- name: Download the install script
+  become_user: "{{ nodebrew_install_user }}"
+  get_url:
+    url: https://git.io/nodebrew
+    dest: /tmp/
+    mode: 0777
+
+- name: Execute the install script
+  become_user: "{{ nodebrew_install_user }}"
+  command: perl /tmp/nodebrew setup
+
+- name: Remove the install script
+  become_user: "{{ nodebrew_install_user }}"
+  file:
+    path: /tmp/nodebrew
+    state: absent
+
+- name: path to current node
+  become_user: "{{ nodebrew_install_user }}"
+  lineinfile:
+    dest=~/.bashrc
+    state=present
+    line="PATH=/home/{{ nodebrew_install_user }}/.nodebrew/current/bin:$PATH"
+
+- name: install node {{ node_version }} and serverless 
+  become: no
+  shell: nodebrew install-binary {{ node_version }} && nodebrew alias default {{ node_version }} && nodebrew use {{ node_version }} && npm install -g serverless
+  environment:
+    PATH: "/home/{{ nodebrew_install_user }}/.nodebrew/current/bin:{{ ansible_env.PATH }}"
+
+#  args:
+#    creates: "/home/{{ nodebrew_install_user }}/.nodebrew/node/{{ node_version }}"

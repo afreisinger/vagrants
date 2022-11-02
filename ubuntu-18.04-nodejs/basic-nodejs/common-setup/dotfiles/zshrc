@@ -1,0 +1,71 @@
+#SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# You may need to manually set your language environment
+# export LANG=en_US.UTF-8
+
+# Preferred editor for local and remote sessions
+# if [[ -n $SSH_CONNECTION ]]; then
+#   export EDITOR='vim'
+# else
+#   export EDITOR='mvim'
+# fi
+
+# Compilation flags
+# export ARCHFLAGS="-arch x86_64"
+
+# Set personal aliases, overriding those provided by oh-my-zsh libs,
+# plugins, and themes. Aliases can be placed here, though oh-my-zsh
+# users are encouraged to define aliases within the ZSH_CUSTOM folder.
+# For a full list of active aliases, run `alias`.
+#
+# Example aliases
+# alias zshconfig="mate ~/.zshrc"
+# alias ohmyzsh="mate ~/.oh-my-zsh"
+export HISTFILE=~/.zsh_history
+export HISTSIZE=100000 # can't be unset, like in bash
+export SAVEHIST=100000 # needed in order to save it somewhere
+
+# Appends every command to the history file once it is executed
+setopt inc_append_history
+# Reloads the history whenever you use it
+setopt share_history
+
+# Re-use BASH aliases
+source ~/.bash.d/bash_aliases_functions
+
+
+# Zsh plugin manager (handles oh-my-zsh, etc)
+# https://github.com/zplug/zplug
+if [ -e ~/.zplug/init.zsh ]; then
+    source ~/.zplug/init.zsh
+fi
+
+##################################################
+## Based on zplug Example section
+## https://github.com/zplug/zplug#example
+##################################################
+
+echo "ZPLUG"
+# Load completion library for those sweet [tab] squares
+zplug "lib/completion", from:oh-my-zsh
+
+
+# Syntax highlighting for commands, load last
+zplug "zsh-users/zsh-syntax-highlighting", from:github, defer:3
+
+# Supports oh-my-zsh plugins and the like
+zplug "plugins/git",   from:oh-my-zsh
+
+# Install plugins if there are plugins that have not been installed
+if ! zplug check --verbose; then
+    printf "Install? [y/N]: "
+    if read -q; then
+        echo; zplug install
+    fi
+fi
+
+# Load theme file
+zplug 'dracula/zsh', as:theme
+#zplug "sindresorhus/pure", use:pure.zsh, from:github, as:theme
+
+# Then, source plugins and add commands to $PATH
+zplug load --verbose

@@ -1,0 +1,11 @@
+---
+
+- name: install python-pip
+  apt:
+    state: present
+    name: python-pip
+
+- name: install awscli
+  pip:
+    name: awscli
+    executable: pip2
