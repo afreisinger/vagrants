@@ -5,7 +5,7 @@ sudo LC_ALL=C.UTF-8 add-apt-repository ppa:ondrej/php
 sudo apt-get update
 sudo apt-get install -y php7.4 php7.4-bcmath php7.4-bz2 php7.4-cli php7.4-curl php7.4-intl php7.4-json php7.4-mbstring php7.4-opcache php7.4-soap php7.4-xml php7.4-xsl php7.4-zip libapache2-mod-php7.4 php7.4-mysql php7.4-gd composer
 
-#https://www.open-emr.org/wiki/index.php/FAQ#What_are_the_correct_PHP_settings_.28can_be_found_in_the_php.ini_file.29.3F
+#REference: https://www.open-emr.org/wiki/index.php/FAQ#What_are_the_correct_PHP_settings_.28can_be_found_in_the_php.ini_file.29.3F
 
 sed -i 's/short_open_tag = .*/short_open_tag = Off/' /etc/php/7.4/apache2/php.ini
 sed -i 's/max_execution_time = .*/max_execution_time = 60/' /etc/php/7.4/apache2/php.ini
